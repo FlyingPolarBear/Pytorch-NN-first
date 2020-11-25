@@ -5,24 +5,25 @@ import numpy as np
 import seaborn as sns
 import torch
 import torch.nn as nn
+from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 
 start_time = time.time()
 
 # 数据集加载
-dataset = np.loadtxt('sonar.csv', delimiter=',')
+dataset = load_iris()
+X = dataset.data
+y = dataset.target
 
 # 超参数设置
 lr = 0.01
 epoch = 5000
-input_dim = dataset.shape[1]-1
-output_dim = 2
-test_size = 0.9
+input_dim = X.shape[1]
+output_dim = 3
+test_size = 0.7
 seed = 27
 
 # 划分训练集和测试集合
-X = dataset[:, 0:-1]
-y = dataset[:, -1]
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=test_size, random_state=seed)
 
@@ -36,7 +37,6 @@ class Net(torch.nn.Module):
     def __init__(self, n_in, n_hid, n_out):
         super(Net, self).__init__()
         self.hidden = nn.Linear(n_in, n_hid)
-        # self.hidden2 = nn.Linear(n_hid1, n_hid2)
         self.out = nn.Linear(n_hid, n_out)
 
     def forward(self, x):
@@ -83,8 +83,8 @@ for i in range(epoch):
     loss.backward()
     optimizer.step()
     acc = net.evaluate(X_test, y_test)
-    if (i % 100 == 0):
-        print("epoch %4d" % i, "loss: {:.4f} acc: {:.4f}".format(loss, acc))
+    if ((i+1) % 100 == 0):
+        print("epoch %4d" % (i+1), "loss: {:.4f} acc: {:.4f}".format(loss, acc))
     acc_np[i] = acc
     loss_np[i] = loss
 
